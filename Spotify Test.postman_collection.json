@@ -1,0 +1,416 @@
+{
+	"info": {
+		"_postman_id": "d091e81d-ba37-4d6e-b31d-ed60e9d69151",
+		"name": "Spotify Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29561589"
+	},
+	"item": [
+		{
+			"name": "[1] Get Access Token 01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"access_token\", pm.response.json().access_token);\r",
+							"\r",
+							"const token = pm.environment.get(\"access_token\");\r",
+							"\r",
+							"pm.test(\"the access token equal to the response\", function () {\r",
+							"    console.log(token);\r",
+							"    pm.expect(token).to.eql(pm.response.json().access_token);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "c45556998472408887936689edbeb2b7",
+						"username": "e9779ca4d6aa492a9b2a893fa70a59e7"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": "https://accounts.spotify.com/api/token"
+			},
+			"response": []
+		},
+		{
+			"name": "[1] Search in Tracks by Keyword 01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"verify that tracks list is not empty\", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.tracks.items).to.have.lengthOf.above(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains tracks with name love\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.tracks.items).to.have.lengthOf.above(0);\r",
+							"    const found = jsonData.tracks.items.some(track => track.name.toLowerCase().includes(\"love\")\r",
+							"    ||  track.album.name.toLowerCase().includes(\"love\"));\r",
+							"\r",
+							"\r",
+							"    pm.expect(found).to.be.true;\r",
+							"    // pm.expect(jsonData.tracks.items).to.satisfy(function (items) {\r",
+							"    //     return items.some(function (item) {\r",
+							"    //         return item.name.toLowerCase().includes(\"love\");\r",
+							"    //     });\r",
+							"    // });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_URL}}/search?q=love&type=track",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "love"
+						},
+						{
+							"key": "type",
+							"value": "track"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[2] Search for Albums by Artist Name 01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response includes album details (name, id, release_date)\",()=>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property(\"name\");\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property(\"id\");\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property(\"release_date\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate album list is not empty\", ()=>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.albums.items).lengthOf.to.be.above(0)\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_URL}}/search?q=Eminem&type=album&",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Eminem"
+						},
+						{
+							"key": "type",
+							"value": "album"
+						},
+						{
+							"key": "",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[3] Get Album Details by Album ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () =>{\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"validate the presence of o (album_type,artists[],tracks.items[],release_date)\",()=>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.property(\"album_type\");\r",
+							"    pm.expect(jsonData).to.property(\"artists\");\r",
+							"    pm.expect(jsonData.tracks).to.property(\"items\");\r",
+							"    pm.expect(jsonData).to.property(\"release_date\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "{{base_URL}}/albums/4aawyAB9vmqN3uQ7FjRGTy"
+			},
+			"response": []
+		},
+		{
+			"name": "[4] Get Track Details by Track ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", ()=> {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"validate name,duration_ms, popularity, album\", ()=>{\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eql(\"Cut To The Feeling\");\r",
+							"    pm.expect(jsonData.duration_ms).to.eql(207959);\r",
+							"    pm.expect(jsonData.popularity).to.eql(0);\r",
+							"    pm.expect(jsonData.album.name).to.eql(\"Cut To The Feeling\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "{{base_URL}}/tracks/11dFghVXANMlKmJXsNCbNl"
+			},
+			"response": []
+		},
+		{
+			"name": "[5] Get Audio Features for a Track",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "https://api.spotify.com/v1/audio-features/11dFghVXANMlKmJXsNCbNl"
+			},
+			"response": []
+		},
+		{
+			"name": "[6] Get Audio Analysis for a Track",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": "{{base_URL}}/audio-analysis/11dFghVXANMlKmJXsNCbNl"
+			},
+			"response": []
+		},
+		{
+			"name": "[7] Browse Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response includes categories.items[]\", ()=>{\r",
+							"    pm.response.to.have.jsonBody('categories.items');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate categories like `Pop`, 'Workout', 'Chill' are present\" , ()=>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.categories.items).to.satisfy((items) => {\r",
+							"        return items.some(item => item.name === 'Pop' || item.name === 'Workout' || item.name === 'Chill'); \r",
+							"    });\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "limit",
+						"value": "1",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "{{base_URL}}/browse/categories"
+			},
+			"response": []
+		},
+		{
+			"name": "[8] Get Playlists for a Category",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": "{{base_URL}}/browse/categories/0JQ5DAt0tbjZptfcdMSKl3/playlists"
+			},
+			"response": []
+		},
+		{
+			"name": "[9] Get Featured Playlists",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "{{base_URL}}/browse/featured-playlists"
+			},
+			"response": []
+		},
+		{
+			"name": "[10] Get New Releases",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response includes: albums.items[], name, release_date, total_tracks\", ()=>{\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.albums.items).to.have.lengthOf.above(0);\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property('name');\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property('release_date');\r",
+							"    pm.expect(jsonData.albums.items[0]).to.have.property('total_tracks');\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": "{{base_URL}}/browse/new-releases"
+			},
+			"response": []
+		}
+	]
+}
